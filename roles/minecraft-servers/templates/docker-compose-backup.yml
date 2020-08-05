@@ -1,0 +1,12 @@
+version: "3.2"
+
+services:
+  backup:
+    image: "ubuntu:focal"
+    command: >
+      bash -e -x -c '
+        cp -r /minecraft_worlds /minecraft-backups/minecraft-worlds-$$(date +"%Y-%m-%d-%H%M%S")
+      '
+    volumes:
+      - {{ minecraft_volume_name }}:/minecraft_worlds
+      - {{ minecraft_backup_dir }}:/minecraft-backups

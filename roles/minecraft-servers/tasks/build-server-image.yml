@@ -1,0 +1,91 @@
+- name: Find latest server version from download webpage
+  shell: >
+    curl -sL https://www.minecraft.net/en-us/download/server/bedrock/ |
+    awk '
+      /serverBedrockLinux/ {
+        r = gensub(/^.*bedrock-server-([0-9\.]+)\.zip.*$/, "\\1", "g");
+        if (r == $0) {
+          exit 1
+        } else {
+          print r
+        }
+      }
+    '
+  args:
+    warn:
+  changed_when: false
+  register: latest_server_version_result
+
+- name: Set latest server version fact
+  set_fact:
+    latest_server_version: "{{ latest_server_version_result.stdout }}"
+
+- assert:
+    that: latest_server_version is match("^[0-9\.]+")
+
+- name: Print latest_server_version
+  debug:
+    msg: >
+      latest_server_version: "{{ latest_server_version }}"
+
+# We use awk here to give us a retcode to test if the image was found or not
+- name: Check for latest server image
+  shell: >
+    docker images |
+    awk '
+      $1=="{{ minecraft_image_name }}" &&
+      $2=="{{ latest_server_version }}" {
+        print
+        found=1
+      }
+      END {
+        exit !found
+      }
+    '
+  register: latest_server_image
+  failed_when: false
+  changed_when: latest_server_image.rc != 0
+
+- name: Print latest_server_image (if it's empty we need to build it)
+  debug:
+    msg: >
+      latest_server_image: "{{ latest_server_image.stdout }}"
+
+- name: Create docker-entrypoint.sh
+  template:
+    src: docker-entrypoint.sh
+    dest: "{{ project_src }}/docker-entrypoint.sh"
+    mode: 0755
+  when: minecraft_default_network is defined
+
+- name: Remove old docker-entrypoint.sh
+  file:
+    path: "{{ project_src }}/docker-entrypoint.sh"
+    state: absent
+  when: minecraft_default_network is not defined
+
+- name: Create Dockerfile
+  template:
+    src: Dockerfile
+    dest: "{{ project_src }}/Dockerfile"
+
+- name: Build latest server version image
+  docker_image:
+    build:
+      path: "{{ project_src }}"
+      args:
+        version: "{{ latest_server_version }}"
+      pull: no
+    name: "{{ minecraft_image_name }}"
+    tag: "{{ latest_server_version }}"
+    source: build
+  when: latest_server_image.rc != 0
+
+- name: Add tag latest to image
+  docker_image:
+    name: "{{ minecraft_image_name }}"
+    tag: "{{ latest_server_version }}"
+    repository: "{{ minecraft_image_name }}:latest"
+    force_tag: yes
+    source: local
+  when: latest_server_image.rc != 0

@@ -1,0 +1,46 @@
+version: "3.2"
+
+services:
+{% for server in minecraft_servers %}
+  {{ server.id }}:
+    image: {{ minecraft_image_name }}:{{ server.version | default('latest') }}
+    restart: unless-stopped
+{% if minecraft_default_network is defined %}
+    networks:
+{% if server.ip is defined %}
+      {{ minecraft_default_network }}:
+        ipv4_address: {{ server.ip }}
+{% else %}
+      {{ minecraft_default_network }}: {}
+{% endif %}
+    cap_add:
+      - NET_ADMIN
+{% endif %}
+    secrets:
+      - source: properties.{{ properties | json_query('results[?item.id==`'+server.id+'`].stat.checksum') | first }}
+        target: /minecraft/server.properties
+      - source: whitelist.{{ whitelistfile.stat.checksum }}
+        target: /minecraft/whitelist.json
+    volumes:
+      - {{ minecraft_volume_name }}:/minecraft/worlds
+
+{% endfor -%}
+
+secrets:
+{% for propertiesfile in properties.results %}
+  properties.{{ propertiesfile.stat.checksum }}:
+    file: "server.properties.{{ propertiesfile.item.id }}"
+{% endfor %}
+
+  whitelist.{{ whitelistfile.stat.checksum }}:
+    file: "whitelist.json"
+
+{% if minecraft_default_network is defined -%}
+networks:
+  {{ minecraft_default_network }}:
+    external: true
+    
+{% endif -%}
+volumes:
+  {{ minecraft_volume_name }}:
+    external: true

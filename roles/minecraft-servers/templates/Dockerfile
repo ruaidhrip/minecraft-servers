@@ -1,0 +1,27 @@
+FROM ubuntu:focal
+
+LABEL maintainer="Ruaidhrí Power <ruaidhri@rucy.org>"
+
+ARG version
+
+RUN apt-get update && \
+    apt-get install -y wget unzip libcurl4 iproute2 && \
+    apt-get clean
+
+# https://www.minecraft.net/en-us/download/server/bedrock/
+RUN wget https://minecraft.azureedge.net/bin-linux/bedrock-server-${version}.zip && \
+    unzip bedrock-server-${version}.zip -d /minecraft && \
+    rm bedrock-server-${version}.zip
+
+WORKDIR /minecraft
+
+VOLUME /minecraft/worlds
+
+EXPOSE 19132/udp
+
+{% if minecraft_default_network is defined -%}
+ADD docker-entrypoint.sh /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+{% endif -%}
+CMD ["./bedrock_server"]

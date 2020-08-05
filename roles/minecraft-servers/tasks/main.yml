@@ -1,0 +1,43 @@
+- name: >
+    Check the Docker cli and docker-compose are installed - if this
+    fails set docker_install to true in your host vars to install them
+  shell: "{{ item }}"
+  changed_when: false
+  loop:
+    - "docker version"
+    - "docker-compose version"
+
+- name: Set compose project_src directory fact
+  set_fact:
+    project_src: "{{ ansible_env.HOME }}/minecraft"
+
+- name: Create compose directory
+  file:
+    state: directory
+    path: "{{ project_src }}"
+
+- name: Build server image
+  include: build-server-image.yml
+
+- name: Generate compose configuration
+  include: compose-config.yml
+
+- name: Make backup cron
+  cron:
+    state: present
+    hour: "5"
+    minute: "20"
+    name: minecraft-backup
+    job: "{{ project_src }}/minecraft-backup.sh"
+  when: minecraft_backup_dir is defined
+
+- name: Create Minecraft worlds volume
+  docker_volume:
+    name: "{{ minecraft_volume_name }}"
+
+- name: Run compose
+  docker_compose:
+    state: present
+    remove_orphans: true
+    remove_volumes: true
+    project_src: "{{ project_src }}"

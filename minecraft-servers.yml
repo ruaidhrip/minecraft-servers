@@ -1,0 +1,5 @@
+- hosts: '{{ target | default("all") }}'
+  roles:
+    - role: docker
+      when: docker_install is defined and docker_install
+    - minecraft-servers

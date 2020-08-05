@@ -1,0 +1,18 @@
+# minecraft_backup_dir: /path/to/backup
+
+# Find decimal xuids at https://cxkes.me/xbox/xuid
+# minecraft_whitelist:
+#   - name: xboxuser
+#     xuid: "2533274944503180"
+
+# if you want Docker and docker-compose installed:
+# docker_install: true
+
+minecraft_servers:
+  - id: server
+    state: present
+    server_name: Dedicated Server
+    level_name: Dedicated Server
+    gamemode: survival
+    level_type: DEFAULT
+    difficulty: easy

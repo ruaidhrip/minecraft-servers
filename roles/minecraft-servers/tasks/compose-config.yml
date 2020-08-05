@@ -1,0 +1,51 @@
+- name: Write server.properties
+  template:
+    src: server.properties
+    dest: "{{ project_src }}/server.properties.{{ item.id }}"
+  loop: "{{ minecraft_servers }}"
+
+- name: Stat server.properties
+  stat:
+    path: "{{ project_src }}/server.properties.{{ item.id }}"
+  register: properties
+  loop: "{{ minecraft_servers }}"
+
+- name: Write whitelist.json
+  template:
+    src: whitelist.json
+    dest: "{{ project_src }}/whitelist.json"
+
+- name: Stat whitelist.json
+  stat:
+    path: "{{ project_src }}/whitelist.json"
+  register: whitelistfile
+
+- name: Write docker-compose.yml
+  template:
+    src: docker-compose.yml
+    dest: "{{ project_src }}/docker-compose.yml"
+
+- name: Write docker-compose-backup.yml
+  template:
+    src: docker-compose-backup.yml
+    dest: "{{ project_src }}/docker-compose-backup.yml"
+  when: minecraft_backup_dir is defined
+
+- name: Remove old docker-compose-backup.yml
+  file:
+    path: "{{ project_src }}/docker-compose-backup.yml"
+    state: absent
+  when: minecraft_backup_dir is not defined
+
+- name: Write minecraft-backup.sh
+  template:
+    src: minecraft-backup.sh
+    dest: "{{ project_src }}/minecraft-backup.sh"
+    mode: 0755
+  when: minecraft_backup_dir is defined
+
+- name: Remove old backup definition
+  file:
+    path: "{{ project_src }}/minecraft-backup.sh"
+    state: absent
+  when: minecraft_backup_dir is not defined
