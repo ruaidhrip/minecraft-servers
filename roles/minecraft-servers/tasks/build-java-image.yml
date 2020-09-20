@@ -1,0 +1,126 @@
+- name: Find latest Java server version from download webpage
+  shell: >
+    curl -sL https://www.minecraft.net/en-us/download/server |
+    awk '
+      /launcher.mojang.com/ {
+        r = gensub(/^.*minecraft_server\.([0-9\.]+)\.jar.*$/, "\\1", "g");
+        if (r == $0) {
+          exit 1
+        } else {
+          print r
+        }
+      }
+    '
+  args:
+    warn:
+  changed_when: false
+  register: latest_java_server_version_result
+
+- debug: var=latest_java_server_version_result
+
+- name: Set latest server version fact
+  set_fact:
+    latest_java_server_version: "{{ latest_java_server_version_result.stdout }}"
+
+- assert:
+    that: latest_java_server_version is match("^[0-9\.]+")
+
+- name: Print latest_java_server_version
+  debug:
+    msg: >
+      latest_java_server_version: "{{ latest_java_server_version }}"
+
+- name: Find latest Java server jar url from download webpage
+  shell: >
+    curl -sL https://www.minecraft.net/en-us/download/server |
+    awk '
+      /launcher.mojang.com/ {
+        r = gensub(/^.*"(https:\/\/launcher.mojang.com\/.*\/server.jar)".*$/, "\\1", "g");
+        if (r == $0) {
+          exit 1
+        } else {
+          print r
+        }
+      }
+    '
+  args:
+    warn:
+  changed_when: false
+  register: latest_java_server_jar_url_result
+
+- debug: var=latest_java_server_jar_url_result
+
+- name: Set latest server jar_url fact
+  set_fact:
+    latest_java_server_jar_url: "{{ latest_java_server_jar_url_result.stdout }}"
+
+- assert:
+    that: latest_java_server_jar_url is match("^https://launcher.mojang.com/.*/server.jar$")
+
+- name: Print latest_java_server_jar_url
+  debug:
+    msg: >
+      latest_java_server_jar_url: "{{ latest_java_server_jar_url }}"
+
+# We use awk here to give us a retcode to test if the image was found or not
+- name: Check for latest server image
+  shell: >
+    docker images |
+    awk '
+      $1=="{{ java_image_name }}" &&
+      $2=="{{ latest_java_server_version }}" {
+        print
+        found=1
+      }
+      END {
+        exit !found
+      }
+    '
+  register: latest_java_server_image
+  failed_when: false
+  changed_when: latest_java_server_image.rc != 0
+
+- name: Print latest_java_server_image (if it's empty we need to build it)
+  debug:
+    msg: >
+      latest_java_server_image: "{{ latest_java_server_image.stdout }}"
+
+- name: Create docker-entrypoint.sh
+  template:
+    src: docker-entrypoint.sh
+    dest: "{{ project_src }}/docker-entrypoint.sh"
+    mode: 0755
+  when: minecraft_default_network is defined
+
+- name: Remove old docker-entrypoint.sh
+  file:
+    path: "{{ project_src }}/docker-entrypoint.sh"
+    state: absent
+  when: minecraft_default_network is not defined
+
+- name: Create Java Dockerfile
+  template:
+    src: Dockerfile-java
+    dest: "{{ project_src }}/Dockerfile-java"
+
+- name: Build latest Java server version image
+  docker_image:
+    build:
+      path: "{{ project_src }}"
+      dockerfile: "Dockerfile-java"
+      args:
+        jar_url: "{{ latest_java_server_jar_url }}"
+      pull: no
+    name: "{{ java_image_name }}"
+    tag: "{{ latest_java_server_version }}"
+    source: build
+  when: latest_java_server_image.rc != 0
+
+- name: Add tag latest to Java image
+  docker_image:
+    name: "{{ java_image_name }}"
+    tag: "{{ latest_java_server_version }}"
+    repository: "{{ java_image_name }}:latest"
+    force_tag: yes
+    source: local
+  when: latest_java_server_image.rc != 0

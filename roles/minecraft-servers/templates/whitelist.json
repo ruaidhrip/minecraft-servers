@@ -1,1 +1,0 @@
-{{ minecraft_whitelist | default([]) | json_query("[].{name: name, xuid: xuid, \"ignoresPlayerLimit\": `true`}") | to_nice_json }}

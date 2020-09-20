@@ -2,8 +2,12 @@
 
 # Find decimal xuids at https://cxkes.me/xbox/xuid
 # minecraft_whitelist:
-#   - name: xboxuser
-#     xuid: "2533274944503180"
+#   bedrock:
+#     - name: xboxuser
+#       xuid: "2533274944503180"
+#   java:
+#     - name: javauser
+#       uuid: "12345678-abcd-ef12-4321-123456654321"
 
 # if you want Docker and docker-compose installed:
 # docker_install: true
@@ -11,8 +15,19 @@
 minecraft_servers:
   - id: server
     state: present
+    type: bedrock
     server_name: Dedicated Server
     level_name: Dedicated Server
     gamemode: survival
     level_type: DEFAULT
     difficulty: easy
+
+# minecraft_servers:
+#   - id: java
+#     state: present
+#     type: java
+#     server_name: Java world
+#     level_name: Java world
+#     gamemode: creative
+#     level_type: DEFAULT
+#     difficulty: easy

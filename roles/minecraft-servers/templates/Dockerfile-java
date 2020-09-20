@@ -1,0 +1,28 @@
+FROM ubuntu:focal
+
+LABEL maintainer="Ruaidhrí Power <ruaidhri@rucy.org>"
+
+ARG jar_url
+
+RUN apt-get update && \
+    apt-get install -y openjdk-8-jdk-headless wget libcurl4 iproute2 && \
+    apt-get clean
+
+# https://www.minecraft.net/en-us/download/server
+RUN mkdir /minecraft && \
+    wget -O /minecraft/server.jar ${jar_url}
+
+WORKDIR /minecraft
+
+VOLUME /minecraft/worlds
+
+RUN echo eula=true > /minecraft/eula.txt
+
+EXPOSE 25565/udp
+
+{% if minecraft_default_network is defined -%}
+ADD docker-entrypoint.sh /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+{% endif -%}
+CMD ["java", "-Xmx1024M", "-Xms1024M", "-jar", "server.jar", "--nogui", "--universe", "worlds"]

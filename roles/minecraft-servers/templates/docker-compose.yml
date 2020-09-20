@@ -3,7 +3,7 @@ version: "3.2"
 services:
 {% for server in minecraft_servers %}
   {{ server.id }}:
-    image: {{ minecraft_image_name }}:{{ server.version | default('latest') }}
+    image: {{ java_image_name if server.type == "java" else bedrock_image_name }}:{{ server.version | default('latest') }}
     restart: unless-stopped
 {% if minecraft_default_network is defined %}
     networks:
@@ -19,7 +19,7 @@ services:
     secrets:
       - source: properties.{{ properties | json_query('results[?item.id==`'+server.id+'`].stat.checksum') | first }}
         target: /minecraft/server.properties
-      - source: whitelist.{{ whitelistfile.stat.checksum }}
+      - source: {{ "whitelistjava" if server.type == "java" else "whitelistbedrock" }}.{{ whitelistfilejava.stat.checksum if server.type == "java" else whitelistfilebedrock.stat.checksum }}
         target: /minecraft/whitelist.json
     volumes:
       - {{ minecraft_volume_name }}:/minecraft/worlds
@@ -32,8 +32,10 @@ secrets:
     file: "server.properties.{{ propertiesfile.item.id }}"
 {% endfor %}
 
-  whitelist.{{ whitelistfile.stat.checksum }}:
-    file: "whitelist.json"
+  whitelistbedrock.{{ whitelistfilebedrock.stat.checksum }}:
+    file: "whitelist-bedrock.json"
+  whitelistjava.{{ whitelistfilejava.stat.checksum }}:
+    file: "whitelist-java.json"
 
 {% if minecraft_default_network is defined -%}
 networks:

@@ -1,0 +1,1 @@
+{{ minecraft_whitelist.java | default([]) | json_query("[].{name: name, uuid: uuid}") | to_nice_json }}

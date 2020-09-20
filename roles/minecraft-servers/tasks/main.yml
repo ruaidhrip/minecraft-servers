@@ -16,8 +16,11 @@
     state: directory
     path: "{{ project_src }}"
 
-- name: Build server image
-  include: build-server-image.yml
+- name: Build Java server image
+  include: build-java-image.yml
+
+- name: Build Bedrock server image
+  include: build-bedrock-image.yml
 
 - name: Generate compose configuration
   include: compose-config.yml

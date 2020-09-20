@@ -1,2 +1,3 @@
-minecraft_image_name: minecraft
+bedrock_image_name: minecraft-server-bedrock
+java_image_name: minecraft-server-java
 minecraft_volume_name: minecraft_worlds

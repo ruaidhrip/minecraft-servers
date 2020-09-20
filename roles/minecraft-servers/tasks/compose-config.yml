@@ -10,15 +10,25 @@
   register: properties
   loop: "{{ minecraft_servers }}"
 
-- name: Write whitelist.json
+- name: Write whitelist-bedrock.json
   template:
-    src: whitelist.json
-    dest: "{{ project_src }}/whitelist.json"
+    src: whitelist-bedrock.json
+    dest: "{{ project_src }}/whitelist-bedrock.json"
 
 - name: Stat whitelist.json
   stat:
-    path: "{{ project_src }}/whitelist.json"
-  register: whitelistfile
+    path: "{{ project_src }}/whitelist-bedrock.json"
+  register: whitelistfilebedrock
+
+- name: Write Java whitelist.json
+  template:
+    src: whitelist-java.json
+    dest: "{{ project_src }}/whitelist-java.json"
+
+- name: Stat Java whitelist.json
+  stat:
+    path: "{{ project_src }}/whitelist-java.json"
+  register: whitelistfilejava
 
 - name: Write docker-compose.yml
   template:
