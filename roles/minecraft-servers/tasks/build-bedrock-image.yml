@@ -1,6 +1,7 @@
 - name: Find latest Bedrock server version from download webpage
   shell: >
-    curl -sL https://www.minecraft.net/en-us/download/server/bedrock/ |
+    curl -sL --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    https://www.minecraft.net/en-us/download/server/bedrock/ |
     awk '
       /serverBedrockLinux/ {
         r = gensub(/^.*bedrock-server-([0-9\.]+)\.zip.*$/, "\\1", "g");
@@ -14,6 +15,7 @@
   args:
     warn:
   changed_when: false
+  delegate_to: localhost
   register: latest_bedrock_server_version_result
 
 - name: Set latest server version fact

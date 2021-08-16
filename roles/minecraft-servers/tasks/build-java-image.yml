@@ -1,6 +1,7 @@
 - name: Find latest Java server version from download webpage
   shell: >
-    curl -sL https://www.minecraft.net/en-us/download/server |
+    curl -sL --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    https://www.minecraft.net/en-us/download/server |
     awk '
       /launcher.mojang.com/ {
         r = gensub(/^.*minecraft_server\.([0-9\.]+)\.jar.*$/, "\\1", "g");
@@ -14,6 +15,7 @@
   args:
     warn:
   changed_when: false
+  delegate_to: localhost
   register: latest_java_server_version_result
 
 - debug: var=latest_java_server_version_result
@@ -32,7 +34,8 @@
 
 - name: Find latest Java server jar url from download webpage
   shell: >
-    curl -sL https://www.minecraft.net/en-us/download/server |
+    curl -sL --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    https://www.minecraft.net/en-us/download/server |
     awk '
       /launcher.mojang.com/ {
         r = gensub(/^.*"(https:\/\/launcher.mojang.com\/.*\/server.jar)".*$/, "\\1", "g");
@@ -46,6 +49,7 @@
   args:
     warn:
   changed_when: false
+  delegate_to: localhost
   register: latest_java_server_jar_url_result
 
 - debug: var=latest_java_server_jar_url_result
