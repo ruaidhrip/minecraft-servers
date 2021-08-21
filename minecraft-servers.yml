@@ -2,4 +2,5 @@
   roles:
     - role: docker
       when: docker_install is defined and docker_install
+      become: true
     - minecraft-servers
