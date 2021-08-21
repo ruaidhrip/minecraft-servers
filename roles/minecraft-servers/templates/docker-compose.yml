@@ -16,6 +16,13 @@ services:
 {% endif %}
     cap_add:
       - NET_ADMIN
+{% else %}
+    ports:
+{% if server.port is defined %}
+      - "{{ server.port }}:19132/udp"
+{% else %}
+      - "19132:19132/udp"
+{% endif %}
 {% endif %}
     secrets:
       - source: properties.{{ properties | json_query('results[?item.id==`'+server.id+'`].stat.checksum') | first }}
