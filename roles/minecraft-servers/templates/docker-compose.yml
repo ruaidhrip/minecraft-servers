@@ -1,5 +1,8 @@
 version: "3.2"
 
+{% if (minecraft_servers | json_query('[?state!=`absent`]') | length) == 0 %}
+services: {}
+{% else %}
 services:
 {% for server in minecraft_servers %}
 {% if server.state != "absent" %}
@@ -34,13 +37,15 @@ services:
 
 {% endif %}
 {% endfor -%}
+{% endif %}
 
 secrets:
 {% for propertiesfile in properties.results %}
+{% if propertiesfile.stat.exists %}
   properties.{{ propertiesfile.stat.checksum }}:
     file: "server.properties.{{ propertiesfile.item.id }}"
+{% endif %}
 {% endfor %}
-
   whitelistbedrock.{{ whitelistfilebedrock.stat.checksum }}:
     file: "whitelist-bedrock.json"
   whitelistjava.{{ whitelistfilejava.stat.checksum }}:

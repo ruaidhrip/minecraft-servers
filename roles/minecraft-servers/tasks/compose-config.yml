@@ -2,6 +2,14 @@
   template:
     src: server.properties
     dest: "{{ project_src }}/server.properties.{{ item.id }}"
+  when: '"state" not in item or item.state == "present"'
+  loop: "{{ minecraft_servers }}"
+
+- name: Remove old server.properties
+  file:
+    path: "{{ project_src }}/server.properties.{{ item.id }}"
+    state: absent
+  when: '"state" in item and item.state == "absent"'
   loop: "{{ minecraft_servers }}"
 
 - name: Stat server.properties
