@@ -21,6 +21,7 @@ minecraft_servers:
     gamemode: survival
     level_type: DEFAULT
     difficulty: easy
+    port: 19132
 
 # minecraft_servers:
 #   - id: java
