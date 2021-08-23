@@ -52,3 +52,9 @@
   pip:
     name: docker-compose
     state: present
+
+- name: Add user to the docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
