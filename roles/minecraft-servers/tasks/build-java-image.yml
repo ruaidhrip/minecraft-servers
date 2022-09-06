@@ -3,7 +3,7 @@
     curl -sL --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
     https://www.minecraft.net/en-us/download/server |
     awk '
-      /launcher.mojang.com/ {
+      /piston-data.mojang.com/ {
         r = gensub(/^.*minecraft_server\.([0-9\.]+)\.jar.*$/, "\\1", "g");
         if (r == $0) {
           exit 1
@@ -37,8 +37,8 @@
     curl -sL --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
     https://www.minecraft.net/en-us/download/server |
     awk '
-      /launcher.mojang.com/ {
-        r = gensub(/^.*"(https:\/\/launcher.mojang.com\/.*\/server.jar)".*$/, "\\1", "g");
+      /piston-data.mojang.com/ {
+        r = gensub(/^.*"(https:\/\/piston-data.mojang.com\/.*\/server.jar)".*$/, "\\1", "g");
         if (r == $0) {
           exit 1
         } else {
@@ -59,7 +59,7 @@
     latest_java_server_jar_url: "{{ latest_java_server_jar_url_result.stdout }}"
 
 - assert:
-    that: latest_java_server_jar_url is match("^https://launcher.mojang.com/.*/server.jar$")
+    that: latest_java_server_jar_url is match("^https://piston-data.mojang.com/.*/server.jar$")
 
 - name: Print latest_java_server_jar_url
   debug:
