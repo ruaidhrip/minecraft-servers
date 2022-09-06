@@ -5,7 +5,7 @@ LABEL maintainer="Ruaidhrí Power <ruaidhri@rucy.org>"
 ARG jar_url
 
 RUN apt-get update && \
-    apt-get install -y openjdk-8-jdk-headless wget libcurl4 iproute2 && \
+    apt-get install -y openjdk-17-jdk-headless wget libcurl4 iproute2 && \
     apt-get clean
 
 # https://www.minecraft.net/en-us/download/server
