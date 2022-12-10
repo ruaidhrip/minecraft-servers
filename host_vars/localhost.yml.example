@@ -1,7 +1,7 @@
 # minecraft_backup_dir: /path/to/backup
 
 # Find decimal xuids at https://cxkes.me/xbox/xuid
-# minecraft_whitelist:
+# minecraft_users:
 #   bedrock:
 #     - name: xboxuser
 #       xuid: "2533274944503180"

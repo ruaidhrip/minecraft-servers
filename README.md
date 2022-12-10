@@ -16,7 +16,7 @@ cd minecraft-servers
 make cfg
 sed -i 's/^[ #]*docker_install:.*$/docker_install: true/' \
     host_vars/localhost.yml # if you want docker and compose to be installed
-# Uncomment and edit minecraft_whitelist to allow your user to connect
+# Uncomment and edit minecraft_users to allow your user to connect
 make
 ```
 Running Minecraft on a remote host using local Ansible:
@@ -28,7 +28,7 @@ cp host_vars/localhost.yml.example host_vars/minecraft.example.org.yml
 echo minecraft.example.org > hosts
 sed -i 's/^[ #]*docker_install:.*$/docker_install: true/' \
     host_vars/minecraft.example.org.yml # if you want docker and compose to be installed
-# Uncomment and edit minecraft_whitelist to allow your user to connect
+# Uncomment and edit minecraft_users to allow your user to connect
 make
 ```
 
