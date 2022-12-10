@@ -1,0 +1,1 @@
+{{ minecraft_users.java | default([]) | json_query("[?op].{name: name, uuid: uuid, level: `4`}") | to_nice_json }}

@@ -8,6 +8,7 @@
 #   java:
 #     - name: javauser
 #       uuid: "12345678-abcd-ef12-4321-123456654321"
+#       op: true
 
 # if you want Docker and docker-compose installed:
 # docker_install: true

@@ -38,6 +38,16 @@
     path: "{{ project_src }}/whitelist-java.json"
   register: whitelistfilejava
 
+- name: Write Java ops.json
+  template:
+    src: ops-java.json
+    dest: "{{ project_src }}/ops-java.json"
+
+- name: Stat Java ops.json
+  stat:
+    path: "{{ project_src }}/ops-java.json"
+  register: opsfilejava
+
 - name: Write docker-compose.yml
   template:
     src: docker-compose.yml

@@ -32,6 +32,10 @@ services:
         target: /minecraft/server.properties
       - source: {{ "whitelistjava" if server.type == "java" else "whitelistbedrock" }}.{{ whitelistfilejava.stat.checksum if server.type == "java" else whitelistfilebedrock.stat.checksum }}
         target: /minecraft/whitelist.json
+{% if server.type == "java" %}
+      - source: opsjava.{{ opsfilejava.stat.checksum }}
+        target: /minecraft/ops.json
+{% endif %}
     volumes:
       - {{ minecraft_volume_name }}:/minecraft/worlds
 
@@ -50,6 +54,8 @@ secrets:
     file: "whitelist-bedrock.json"
   whitelistjava.{{ whitelistfilejava.stat.checksum }}:
     file: "whitelist-java.json"
+  opsjava.{{ opsfilejava.stat.checksum }}:
+    file: "ops-java.json"
 
 {% if minecraft_default_network is defined -%}
 networks:
